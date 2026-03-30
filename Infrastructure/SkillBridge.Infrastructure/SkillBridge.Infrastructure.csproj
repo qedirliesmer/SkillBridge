@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Services\" />
-    <Folder Include="Persistence\Repositories\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\SkillBridge.Application\SkillBridge.Application.csproj" />
     <ProjectReference Include="..\..\Core\SkillBridge.Domain\SkillBridge.Domain.csproj" />
   </ItemGroup>
 
