@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SkillBridge.Infrastructure;
 using SkillBridge.Infrastructure.Persistence.Context;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,11 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
-builder.Services.AddDbContext<SkillBridgeDbContext>(options =>
-    options.UseNpgsql(connectionString));
-// Configure the HTTP request pipeline.
 var app = builder.Build();
 
 app.UseHttpsRedirection();
