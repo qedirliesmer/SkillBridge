@@ -21,11 +21,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _dbSet = _context.Set<T>();
     }
 
-    public async Task<T?> GetByIdAsync(int id)
-        => await _dbSet.FindAsync(id);
+    public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        => await _dbSet.FindAsync(new object[] { id }, cancellationToken);
 
-    public async Task<IEnumerable<T>> GetAllAsync()
-        => await _dbSet.ToListAsync();
+    public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await _dbSet.ToListAsync(cancellationToken);
+    
+    public IQueryable<T> GetAllQueryable()
+        => _dbSet.AsQueryable();
 
     public IQueryable<T> GetWhere(Expression<Func<T, bool>> expression, bool asNoTracking = false)
     {
@@ -33,15 +36,19 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return asNoTracking ? query.AsNoTracking() : query;
     }
 
-    public async Task AddAsync(T entity)
-        => await _dbSet.AddAsync(entity);
+    public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
+        => await _dbSet.AddAsync(entity, cancellationToken);
+
     public void Update(T entity)
-        => _dbSet.Update(entity);
+    {
+        _dbSet.Attach(entity);
+        _context.Entry(entity).State = EntityState.Modified;
+    }
 
     public void Delete(T entity)
         => _dbSet.Remove(entity);
 
-    public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression)
-        => await _dbSet.AnyAsync(expression);
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default)
+        => await _dbSet.AnyAsync(expression, cancellationToken);
 }
 
