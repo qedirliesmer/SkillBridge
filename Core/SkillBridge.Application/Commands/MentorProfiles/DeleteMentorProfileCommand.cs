@@ -26,27 +26,27 @@ public class DeleteMentorProfileCommandHandler : IRequestHandler<DeleteMentorPro
 
         if (mentorProfile == null)
         {
-            throw new Exception("Mentor profile not found.");
+            throw new KeyNotFoundException("Mentor profile not found.");
         }
+
         if (mentorProfile.UserId != request.UserId)
         {
-            throw new Exception("You are not authorized to delete this profile. Access denied.");
+            throw new UnauthorizedAccessException("You are not authorized to delete this profile.");
         }
 
-
         var hasActiveBookings = mentorProfile.Bookings.Any(b =>
-            b.ScheduledDate > DateTime.Now &&
+            b.ScheduledDate > DateTime.UtcNow &&
             (b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.Pending));
 
         if (hasActiveBookings)
         {
-            throw new Exception("Action Denied: You have upcoming active bookings. Please complete or cancel your appointments before deleting your profile.");
+            throw new InvalidOperationException("Action Denied: You have upcoming active bookings. Please complete or cancel your appointments before deleting your profile.");
         }
 
         _unitOfWork.MentorProfiles.Delete(mentorProfile);
 
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return result > 0;
     }
 }

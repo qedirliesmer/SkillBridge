@@ -31,10 +31,10 @@ public class CreateMentorProfileCommandHandler : IRequestHandler<CreateMentorPro
 
         if (isAlreadyMentor)
         {
-            throw new Exception("A mentor profile already exists for this user.");
+            throw new InvalidOperationException($"User with ID {request.CreateDto.UserId} is already a mentor.");
         }
-
         var mentorEntity = _mapper.Map<MentorProfile>(request.CreateDto);
+
         mentorEntity.Rating = 0.00m;
 
         await _unitOfWork.MentorProfiles.AddAsync(mentorEntity, cancellationToken);
