@@ -9,6 +9,7 @@ namespace SkillBridge.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
@@ -26,7 +27,7 @@ public class AuthController : ControllerBase
 
         if (!success)
         {
-            return BadRequest(BaseResponse.Fail(error));
+            return BadRequest(BaseResponse.Fail(error ?? "An error occurred during registration."));
         }
 
         return Ok(BaseResponse.Success("User registered successfully."));
@@ -36,13 +37,32 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
-        var token = await _authService.LoginAsync(request, ct);
+        var response = await _authService.LoginAsync(request, ct);
 
-        if (string.IsNullOrEmpty(token))
+        if (response == null)
         {
-            return Unauthorized(BaseResponse<string>.Fail("Invalid login or password."));
+            return Unauthorized(BaseResponse<TokenResponse>.Fail("Invalid email or password."));
         }
 
-        return Ok(BaseResponse<string>.Success(token));
+        return Ok(BaseResponse<TokenResponse>.Success(response));
+    }
+
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.RefreshToken))
+        {
+            return BadRequest(BaseResponse<TokenResponse>.Fail("Refresh token must be provided."));
+        }
+
+        var response = await _authService.RefreshTokenAsync(request.RefreshToken);
+
+        if (response == null)
+        {
+            return Unauthorized(BaseResponse<TokenResponse>.Fail("Invalid or expired refresh token."));
+        }
+
+        return Ok(BaseResponse<TokenResponse>.Success(response));
     }
 }
