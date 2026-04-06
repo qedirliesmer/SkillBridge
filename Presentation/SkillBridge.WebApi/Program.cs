@@ -1,19 +1,19 @@
-using Microsoft.EntityFrameworkCore;
 using SkillBridge.Application;
 using SkillBridge.Infrastructure;
-using SkillBridge.Infrastructure.Persistence.Context;
+using SkillBridge.WebApi;
+using SkillBridge.WebApi.Extensions;
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
+builder.Services.AddApiServices(builder.Configuration);
 
 builder.Services.AddControllers();
-
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -23,9 +23,9 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
-app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseHttpsRedirection();
+app.UseApiPipeline();
 
 app.MapControllers();
 

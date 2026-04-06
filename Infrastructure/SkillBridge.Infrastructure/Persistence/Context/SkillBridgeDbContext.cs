@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SkillBridge.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SkillBridge.Infrastructure.Persistence.Context;
 
-public class SkillBridgeDbContext:DbContext
+public class SkillBridgeDbContext:IdentityDbContext<User>
 {
     public SkillBridgeDbContext(DbContextOptions<SkillBridgeDbContext> options)
         : base(options)
