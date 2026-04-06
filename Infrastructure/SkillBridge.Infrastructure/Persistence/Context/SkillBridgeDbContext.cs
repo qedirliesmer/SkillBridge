@@ -28,7 +28,7 @@ public class SkillBridgeDbContext:IdentityDbContext<User>
     public DbSet<Availability> Availabilities { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<MatchHistory> MatchHistories { get; set; }
-
+    public DbSet<RefreshToken> RefreshTokens {  get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

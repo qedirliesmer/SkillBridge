@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 using SkillBridge.Application.Abstracts.Services;
 using SkillBridge.Application.Options;
 using SkillBridge.Domain.Entities;
@@ -16,17 +17,19 @@ public static class ServiceCollectionExtensions
     {
         services.AddIdentity<User, IdentityRole>(options =>
         {
-            options.Password.RequiredLength = 8; 
+            options.Password.RequiredLength = 8;
             options.Password.RequireNonAlphanumeric = true;
             options.Password.RequireUppercase = true;
             options.Password.RequireLowercase = true;
             options.Password.RequireDigit = true;
-            options.User.RequireUniqueEmail = true; 
+            options.User.RequireUniqueEmail = true;
         })
-        .AddEntityFrameworkStores<SkillBridgeDbContext>() 
-        .AddDefaultTokenProviders();
+         .AddEntityFrameworkStores<SkillBridgeDbContext>()
+         .AddDefaultTokenProviders();
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+
+        services.ConfigureOptions<ConfigureJwtBearerOptions>();
 
         services.AddAuthentication(options =>
         {
@@ -34,12 +37,36 @@ public static class ServiceCollectionExtensions
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer();
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "SkillBridge API", Version = "v1" });
 
-        services.ConfigureOptions<ConfigureJwtBearerOptions>();
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "JWT Authorization header-i Bearer sxemi vasitəsilə daxil edin. Misal: '12345abcdef'"
+            });
 
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
         services.AddValidatorsFromAssemblyContaining<IAuthService>();
-        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }

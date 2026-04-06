@@ -8,6 +8,7 @@ namespace SkillBridge.WebApi.Options;
 
 public class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptions>
 {
+
     private readonly JwtOptions _jwtOptions;
 
     public ConfigureJwtBearerOptions(IOptions<JwtOptions> jwtOptions)
@@ -23,11 +24,10 @@ public class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptions>
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
+
             ValidIssuer = _jwtOptions.Issuer,
             ValidAudience = _jwtOptions.Audience,
-
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret)),
-
             ClockSkew = TimeSpan.Zero
         };
     }
