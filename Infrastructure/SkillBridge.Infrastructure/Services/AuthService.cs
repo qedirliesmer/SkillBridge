@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using SkillBridge.Application.Abstracts.Services;
 using SkillBridge.Application.DTOs.AuthDTOs;
 using SkillBridge.Application.Options;
+using SkillBridge.Domain.Constants;
 using SkillBridge.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,17 +16,20 @@ namespace SkillBridge.Infrastructure.Services;
 public class AuthService : IAuthService
 {
     private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly JwtOptions _jwtOptions;
 
     public AuthService(
         UserManager<User> userManager,
+        SignInManager<User> signInManager,
         IJwtTokenGenerator jwtTokenGenerator,
         IRefreshTokenService refreshTokenService,
         IOptions<JwtOptions> jwtOptions)
     {
         _userManager = userManager;
+        _signInManager = signInManager;
         _jwtTokenGenerator = jwtTokenGenerator;
         _refreshTokenService = refreshTokenService;
         _jwtOptions = jwtOptions.Value;
@@ -35,18 +39,21 @@ public class AuthService : IAuthService
     {
         var user = new User
         {
-            UserName = request.Email, 
+            UserName = request.Email,
             Email = request.Email,
-            FullName = request.FullName
+            FullName = request.FullName,
+            EmailConfirmed = true
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
         {
-            var error = result.Errors.FirstOrDefault()?.Description ?? "Qeydiyyat zamanı xəta baş verdi.";
+            var error = result.Errors.FirstOrDefault()?.Description ?? "Registration failed.";
             return (false, error);
         }
+
+        await _userManager.AddToRoleAsync(user, RoleNames.User);
 
         return (true, null);
     }
@@ -55,10 +62,11 @@ public class AuthService : IAuthService
     {
         var user = await _userManager.FindByEmailAsync(request.Login);
 
-        if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
-        {
-            return null; 
-        }
+        if (user == null) return null;
+
+        var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+
+        if (!result.Succeeded) return null;
 
         return await BuildTokenResponseAsync(user);
     }
@@ -67,17 +75,16 @@ public class AuthService : IAuthService
     {
         var user = await _refreshTokenService.ValidateAndConsumeAsync(refreshToken);
 
-        if (user == null)
-        {
-            return null; 
-        }
+        if (user == null) return null;
 
         return await BuildTokenResponseAsync(user);
     }
 
     private async Task<TokenResponse> BuildTokenResponseAsync(User user)
     {
-        var accessToken = _jwtTokenGenerator.GenerateAccessToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var accessToken = _jwtTokenGenerator.GenerateAccessToken(user, roles);
 
         var refreshToken = await _refreshTokenService.CreateAsync(user);
 
