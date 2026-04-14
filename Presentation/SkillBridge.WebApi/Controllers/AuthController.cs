@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Application.Abstracts.Services;
 using SkillBridge.Application.DTOs.AuthDTOs;
 using SkillBridge.Application.Models;
+using SkillBridge.Domain.Constants;
 
 namespace SkillBridge.WebApi.Controllers;
 
@@ -64,5 +65,25 @@ public class AuthController : ControllerBase
         }
 
         return Ok(BaseResponse<TokenResponse>.Success(response));
+    }
+    [Authorize(Policy = Policies.ManageCategories)]
+    [HttpGet("test-admin-role")]
+    public IActionResult TestAdminRole()
+    {
+        return Ok(new { message = "Uğurlu: Sən Admin rolundasan!" });
+    }
+
+    [Authorize(Policy = Policies.ManageCourses)]
+    [HttpGet("test-mentor-role")]
+    public IActionResult TestMentorRole()
+    {
+        return Ok(new { message = "Uğurlu: Sən Mentor rolundasan!" });
+    }
+
+    [Authorize(Policy = Policies.ManageProfile)]
+    [HttpGet("test-student-role")]
+    public IActionResult TestStudentRole()
+    {
+        return Ok(new { message = "Uğurlu: Sən Student rolundasan!" });
     }
 }
