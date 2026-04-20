@@ -13,4 +13,6 @@ public static class Policies
     public const string ManageCourses = "ManageCourses";
 
     public const string ManageProfile = "ManageProfile";
+    public const string AdminOnly = "AdminOnly";
+    public const string MentorOrAdmin = "MentorOrAdmin";
 }

@@ -9,5 +9,9 @@ namespace SkillBridge.Domain.Entities;
 
 public class User:IdentityUser
 {
-    public string? FullName { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string FullName => $"{FirstName} {LastName}".Trim();
+    public virtual MentorProfile? MentorProfile { get; set; }
+    public virtual UserProfile? UserProfile { get; set; }
 }

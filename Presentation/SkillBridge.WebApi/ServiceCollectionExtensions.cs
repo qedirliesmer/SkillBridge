@@ -11,13 +11,17 @@ using SkillBridge.Domain.Entities;
 using SkillBridge.Infrastructure.Persistence.Context;
 using SkillBridge.Infrastructure.Services;
 using SkillBridge.WebApi.Options;
+using System.Security.Claims;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 namespace SkillBridge.WebApi;
+
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         services.AddIdentity<User, IdentityRole>(options =>
         {
             options.Password.RequiredLength = 8;
@@ -32,6 +36,7 @@ public static class ServiceCollectionExtensions
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));
+        services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
 
         var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
                          ?? throw new InvalidOperationException("JwtOptions section is missing in appsettings.json");
@@ -40,6 +45,7 @@ public static class ServiceCollectionExtensions
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme= JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
@@ -52,7 +58,11 @@ public static class ServiceCollectionExtensions
                 ValidIssuer = jwtOptions.Issuer,
                 ValidAudience = jwtOptions.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+                RoleClaimType = System.Security.Claims.ClaimTypes.Role,
+
+                // NameIdentifier (sub) ucun de eyni qayda:
+                NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier
             };
         });
 
@@ -70,16 +80,12 @@ public static class ServiceCollectionExtensions
             };
         });
 
-        // 6.4 Authorization (SkillBridge biznes məntiqinə uyğun yeniləndi)
         services.AddAuthorization(options =>
         {
-            // Sənəddəki ManageCities -> SkillBridge-də sistem ayarları/kateqoriyalar üçün
+            options.AddPolicy(Policies.AdminOnly, p => p.RequireRole(RoleNames.Admin));
+            options.AddPolicy(Policies.MentorOrAdmin, p => p.RequireRole(RoleNames.Admin, RoleNames.Mentor));
             options.AddPolicy(Policies.ManageCategories, p => p.RequireRole(RoleNames.Admin));
-
-            //// Mentor və Adminlərin kurs idarə etməsi üçün
             options.AddPolicy(Policies.ManageCourses, p => p.RequireRole(RoleNames.Admin, RoleNames.Mentor));
-
-            //// Hər bir giriş etmiş istifadəçi üçün
             options.AddPolicy(Policies.ManageProfile, p => p.RequireAuthenticatedUser());
         });
 

@@ -41,5 +41,6 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.ToTable(t => t.HasCheckConstraint("CK_Booking_TimeRange", "\"StartTime\" < \"EndTime\""));
+        builder.Property(b => b.ScheduledDate).HasColumnType("date");
     }
 }

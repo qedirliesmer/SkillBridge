@@ -38,7 +38,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
         foreach (var role in roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim("role", role));
         }
 
         var token = new JwtSecurityToken(

@@ -14,6 +14,7 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
     public void Configure(EntityTypeBuilder<Review> builder)
     {
         builder.ToTable("Reviews");
+
         builder.Property(r => r.Rating)
             .IsRequired();
 
@@ -21,12 +22,10 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
             .HasMaxLength(1000)
             .IsRequired(false);
 
-
         builder.HasOne(r => r.Booking)
             .WithOne(b => b.Review)
             .HasForeignKey<Review>(r => r.BookingId)
             .OnDelete(DeleteBehavior.Cascade);
-       
 
         builder.HasOne(r => r.FromUserProfile)
             .WithMany(u => u.ReviewsGiven)
@@ -37,8 +36,13 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
             .WithMany(m => m.ReviewsReceived)
             .HasForeignKey(r => r.ToMentorProfileId)
             .OnDelete(DeleteBehavior.NoAction);
-        builder.ToTable(t => t.HasCheckConstraint("CK_Review_Rating_Range", "\"Rating\" >= 1 AND \"Rating\" <= 5"));
+
+        builder.ToTable(t => t.HasCheckConstraint(
+            "CK_Review_Rating_Range",
+            "\"Rating\" >= 1 AND \"Rating\" <= 5"
+        ));
 
         builder.HasIndex(r => r.BookingId).IsUnique();
     }
 }
+

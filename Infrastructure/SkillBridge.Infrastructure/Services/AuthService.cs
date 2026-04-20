@@ -19,6 +19,8 @@ public class AuthService : IAuthService
     private readonly SignInManager<User> _signInManager;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IEmailService _emailService; 
+    private readonly IOptions<EmailOptions> _emailOptions;
     private readonly JwtOptions _jwtOptions;
 
     public AuthService(
@@ -26,6 +28,8 @@ public class AuthService : IAuthService
         SignInManager<User> signInManager,
         IJwtTokenGenerator jwtTokenGenerator,
         IRefreshTokenService refreshTokenService,
+        IEmailService emailService, 
+        IOptions<EmailOptions> emailOptions,
         IOptions<JwtOptions> jwtOptions)
     {
         _userManager = userManager;
@@ -33,16 +37,23 @@ public class AuthService : IAuthService
         _jwtTokenGenerator = jwtTokenGenerator;
         _refreshTokenService = refreshTokenService;
         _jwtOptions = jwtOptions.Value;
+        _emailService = emailService;
+        _emailOptions = emailOptions;
     }
 
     public async Task<(bool Success, string? Error)> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
+        var nameParts = (request.FullName ?? string.Empty).Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        var firstName = nameParts.Length > 0 ? nameParts[0] : "User";
+        var lastName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
+
         var user = new User
         {
             UserName = request.Email,
             Email = request.Email,
-            FullName = request.FullName,
-            EmailConfirmed = true
+            FirstName = firstName,
+            LastName = lastName,
+            EmailConfirmed = false
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
@@ -55,6 +66,36 @@ public class AuthService : IAuthService
 
         await _userManager.AddToRoleAsync(user, RoleNames.User);
 
+        try
+        {
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = $"{_emailOptions.Value.ConfirmationBaseUrl}?token={Uri.EscapeDataString(token)}&email={user.Email}";
+
+            await _emailService.SendEmailAsync(
+                user.Email!,
+                "Confirm Your Account",
+                $"Welcome to our platform! Please <a href='{confirmationLink}'>click here</a> to verify your email address and complete your registration.");
+        }
+        catch (Exception)
+        {
+        }
+
+        return (true, null);
+    }
+    public async Task<(bool Success, string? Error)> ConfirmEmailAsync(string email, string token)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            return (false, "User not found.");
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+        if (!result.Succeeded)
+        {
+            return (false, "The confirmation link is invalid or has expired.");
+        }
+
         return (true, null);
     }
 
@@ -63,6 +104,11 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(request.Login);
 
         if (user == null) return null;
+
+        if (!user.EmailConfirmed)
+        {
+            return null;
+        }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 

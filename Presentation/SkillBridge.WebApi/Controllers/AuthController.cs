@@ -31,7 +31,27 @@ public class AuthController : ControllerBase
             return BadRequest(BaseResponse.Fail(error ?? "An error occurred during registration."));
         }
 
-        return Ok(BaseResponse.Success("User registered successfully."));
+        return Ok(BaseResponse.Success("Registration successful. Please check your email to confirm your account."));
+    }
+
+    [AllowAnonymous]
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
+    {
+        // Giriş parametrlərinin ilkin yoxlanışı
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+        {
+            return BadRequest(BaseResponse.Fail("Email and token are required."));
+        }
+
+        var (success, error) = await _authService.ConfirmEmailAsync(email, token);
+
+        if (!success)
+        {
+            return BadRequest(BaseResponse.Fail(error ?? "Email confirmation failed."));
+        }
+
+        return Ok(BaseResponse.Success("Email confirmed successfully. You can now log in."));
     }
 
     [AllowAnonymous]
@@ -42,10 +62,10 @@ public class AuthController : ControllerBase
 
         if (response == null)
         {
-            return Unauthorized(BaseResponse<TokenResponse>.Fail("Invalid email or password."));
+            return Unauthorized(BaseResponse<TokenResponse>.Fail("Invalid credentials or unconfirmed account."));
         }
 
-        return Ok(BaseResponse<TokenResponse>.Success(response));
+        return Ok(BaseResponse<TokenResponse>.Success(response, "Login successful."));
     }
 
     [AllowAnonymous]
@@ -54,7 +74,7 @@ public class AuthController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
         {
-            return BadRequest(BaseResponse<TokenResponse>.Fail("Refresh token must be provided."));
+            return BadRequest(BaseResponse<TokenResponse>.Fail("Refresh token is required."));
         }
 
         var response = await _authService.RefreshTokenAsync(request.RefreshToken);
@@ -64,26 +84,6 @@ public class AuthController : ControllerBase
             return Unauthorized(BaseResponse<TokenResponse>.Fail("Invalid or expired refresh token."));
         }
 
-        return Ok(BaseResponse<TokenResponse>.Success(response));
-    }
-    [Authorize(Policy = Policies.ManageCategories)]
-    [HttpGet("test-admin-role")]
-    public IActionResult TestAdminRole()
-    {
-        return Ok(new { message = "Uğurlu: Sən Admin rolundasan!" });
-    }
-
-    [Authorize(Policy = Policies.ManageCourses)]
-    [HttpGet("test-mentor-role")]
-    public IActionResult TestMentorRole()
-    {
-        return Ok(new { message = "Uğurlu: Sən Mentor rolundasan!" });
-    }
-
-    [Authorize(Policy = Policies.ManageProfile)]
-    [HttpGet("test-student-role")]
-    public IActionResult TestStudentRole()
-    {
-        return Ok(new { message = "Uğurlu: Sən Student rolundasan!" });
+        return Ok(BaseResponse<TokenResponse>.Success(response, "Token refreshed successfully."));
     }
 }

@@ -13,25 +13,39 @@ public class MappingProfile:Profile
 {
     public MappingProfile()
     {
-        CreateMap<MentorProfile, MentorProfileListDto>();
-
         CreateMap<Review, MentorProfileReviewDto>()
-            .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src =>
-                $"{src.FromUserProfile.FirstName} {src.FromUserProfile.LastName}"))
-            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
-            .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
-            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+        .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src =>
+        (src.FromUserProfile != null && src.FromUserProfile.User != null)
+        ? $"{src.FromUserProfile.User.FirstName} {src.FromUserProfile.User.LastName}"
+        : "Anonymous Student"))
+         .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
+          .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
+          .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+
+        CreateMap<MentorProfile, MentorProfileListDto>()
+            .ForMember(dest => dest.MentorFullName, opt => opt.MapFrom(src =>
+                src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : string.Empty))
+            .ForMember(dest => dest.TopSkills, opt => opt.MapFrom(src =>
+                src.MentorSkills != null
+                ? src.MentorSkills.Select(ms => ms.Skill.Name).Take(3).ToList()
+                : new List<string>()));
 
         CreateMap<MentorProfile, MentorProfileDetailDto>()
+            .ForMember(dest => dest.MentorFullName, opt => opt.MapFrom(src =>
+                src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : string.Empty))
             .ForMember(dest => dest.Skills, opt => opt.MapFrom(src =>
-                src.MentorSkills.Select(ms => ms.Skill.Name).ToList()))
-            .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
-                src.ReviewsReceived.Any() ? (decimal)src.ReviewsReceived.Average(r => r.Rating) : 0))
+                src.MentorSkills != null
+                ? src.MentorSkills.Select(ms => ms.Skill.Name).ToList()
+                : new List<string>()))
+            .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => src.ReviewsReceived))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating));
 
-            .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => src.ReviewsReceived));
+        CreateMap<MentorProfileCreateDto, MentorProfile>()
+            .ForMember(dest => dest.UserId, opt => opt.Ignore());
 
-        CreateMap<MentorProfileCreateDto, MentorProfile>();
-        CreateMap<MentorProfileUpdateDto, MentorProfile>();
+        CreateMap<MentorProfileUpdateDto, MentorProfile>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.UserId, opt => opt.Ignore());
     }
 }
 

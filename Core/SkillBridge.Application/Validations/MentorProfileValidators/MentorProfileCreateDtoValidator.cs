@@ -10,12 +10,9 @@ namespace SkillBridge.Application.Validations.MentorProfileValidators;
 
 public class MentorProfileCreateDtoValidator:AbstractValidator<MentorProfileCreateDto>
 {
-    public Guid UserId { get; set; }
+   
     public MentorProfileCreateDtoValidator()
     {
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("User ID is required.")
-            .GreaterThan(0).WithMessage("Please enter a valid User ID.");
 
         RuleFor(x => x.YearsOfExperience)
             .InclusiveBetween(0, 50).WithMessage("Years of experience must be between 0 and 50.");

@@ -1,4 +1,5 @@
 using SkillBridge.Application;
+using SkillBridge.Domain.Constants;
 using SkillBridge.Infrastructure;
 using SkillBridge.WebApi;
 using SkillBridge.WebApi.Extensions;
@@ -10,7 +11,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 

@@ -36,5 +36,8 @@ public static class ServiceRegistration
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IApplicationDbContext>(provider =>
+        provider.GetRequiredService<SkillBridgeDbContext>());  
+        services.AddScoped<IEmailService, SmtpEmailService>();
     }
 }

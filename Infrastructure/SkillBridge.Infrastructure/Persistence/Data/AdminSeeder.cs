@@ -30,9 +30,17 @@ public static class AdminSeeder
         {
             UserName = options.AdminEmail,
             Email = options.AdminEmail,
-            FullName = options.AdminFullName,
-            EmailConfirmed = true 
+            FirstName = "Admin",
+            LastName = "User",
+            EmailConfirmed = true
         };
+
+        if (!string.IsNullOrEmpty(options.AdminFullName))
+        {
+            var names = options.AdminFullName.Split(' ');
+            adminUser.FirstName = names[0];
+            adminUser.LastName = names.Length > 1 ? names[1] : "";
+        }
 
         var result = await userManager.CreateAsync(adminUser, options.AdminPassword);
 

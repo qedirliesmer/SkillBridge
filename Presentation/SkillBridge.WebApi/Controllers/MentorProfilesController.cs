@@ -1,8 +1,12 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Application.Commands.MentorProfiles;
+using SkillBridge.Application.DTOs.MentorProfileDTOs;
 using SkillBridge.Application.Queries.MentorProfiles;
+using SkillBridge.Domain.Constants;
+using System.Security.Claims;
 
 namespace SkillBridge.WebApi.Controllers;
 
@@ -11,56 +15,108 @@ namespace SkillBridge.WebApi.Controllers;
 public class MentorProfilesController : ControllerBase
 {
     private readonly IMediator _mediator;
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateMentorProfileCommand command)
-    {
-        var id = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetById), new { id = id }, id);
-    }
+
     public MentorProfilesController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Create([FromBody] CreateMentorProfileCommand command)
+    {
+        var id = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetById), new { id = id }, new
+        {
+            Id = id,
+            Message = "Mentor profile created successfully. Please wait for admin approval."
+        });
+    }
+
+    [HttpPut("{id}/status")]
+    [Authorize(Policy = Policies.AdminOnly)] 
+    public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateMentorStatusDto statusDto)
+    {
+        if (id != statusDto.MentorProfileId)
+            return BadRequest(new { Message = "ID mismatch occurred." });
+
+        await _mediator.Send(new UpdateMentorStatusCommand(statusDto));
+        return Ok(new { Message = "Mentor status updated successfully." });
+    }
+
+    [HttpGet("admin/all")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> GetAllForAdmin([FromQuery] GetMentorsPagedQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(new { Data = result, Message = "All mentor profiles retrieved for administration." });
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] GetMentorsPagedQuery query)
     {
         var result = await _mediator.Send(query);
-        return Ok(result);
+        return Ok(new { Data = result, Message = "Mentor profiles retrieved successfully." });
     }
 
     [HttpGet("top-rated")]
     public async Task<IActionResult> GetTopRated([FromQuery] int count = 5)
     {
         var result = await _mediator.Send(new GetTopRatedMentorsQuery(count));
-        return Ok(result);
+        return Ok(new { Data = result, Message = "Top rated mentors retrieved successfully." });
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _mediator.Send(new GetMentorProfileByIdQuery(id));
-        return Ok(result);
+        return Ok(new { Data = result, Message = "Mentor profile details retrieved successfully." });
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] UpdateMentorProfileCommand command)
+    [HttpPut("{id}")]
+    [Authorize(Policy = Policies.MentorOrAdmin)]
+    public async Task<IActionResult> Update(int id, [FromBody] MentorProfileUpdateDto updateDto)
     {
-        await _mediator.Send(command);
-        return NoContent(); 
+        if (id != updateDto.Id)
+            return BadRequest(new { Message = "ID mismatch occurred." });
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+        var isAdmin = User.IsInRole("Admin");
+
+        await _mediator.Send(new UpdateMentorProfileCommand(updateDto, userId, isAdmin));
+
+        return Ok(new { Message = "Mentor profile updated successfully." });
     }
 
-    [HttpPut("skills")]
-    public async Task<IActionResult> UpdateSkills([FromBody] UpdateMentorSkillsCommand command)
+    [HttpPut("{id}/skills")]
+    [Authorize(Policy = Policies.MentorOrAdmin)]
+    public async Task<IActionResult> UpdateSkills(int id, [FromBody] MentorProfileUpdateSkillsDto skillsDto)
     {
-        await _mediator.Send(command);
-        return NoContent();
+        if (id != skillsDto.MentorProfileId)
+            return BadRequest(new { Message = "Mentor ID mismatch occurred." });
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+        var isAdmin = User.IsInRole("Admin");
+
+        await _mediator.Send(new UpdateMentorSkillsCommand(skillsDto, userId, isAdmin));
+
+        return Ok(new { Message = "Mentor skills updated successfully." });
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = Policies.MentorOrAdmin)] 
     public async Task<IActionResult> Delete(int id)
     {
-        await _mediator.Send(new DeleteMentorProfileCommand(id, 1));
-        return NoContent();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+        var isAdmin = User.IsInRole("Admin");
+
+        var result = await _mediator.Send(new DeleteMentorProfileCommand(id, userId, isAdmin));
+
+        if (!result) return NotFound(new { Message = "Mentor profile not found." });
+
+        return Ok(new { Message = "Mentor profile deleted successfully." });
     }
 }

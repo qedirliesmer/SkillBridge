@@ -21,11 +21,9 @@ public class MentorProfileUpdateDtoValidator:AbstractValidator<MentorProfileUpda
 
         RuleFor(x => x.CurrentJobTitle)
             .NotEmpty().WithMessage("Current job title cannot be empty.")
-            .MinimumLength(2).WithMessage("Job title is too short.")
-            .MaximumLength(100).WithMessage("Job title must not exceed 100 characters.");
+            .MaximumLength(100);
 
         RuleFor(x => x.Company)
-            .NotEmpty().WithMessage("Company name is required.")
-            .MaximumLength(150).WithMessage("Company name must not exceed 150 characters.");
+            .NotEmpty().WithMessage("Company name is required.");
     }
 }

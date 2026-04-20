@@ -30,10 +30,10 @@ public class MentorProfileConfiguration : IEntityTypeConfiguration<MentorProfile
             .HasPrecision(3, 2)
             .HasDefaultValue(0.00m);
 
-        builder.HasOne<UserProfile>()
-            .WithOne(u => u.MentorProfile)
-            .HasForeignKey<MentorProfile>(m => m.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.User)
+           .WithOne(u => u.MentorProfile)
+           .HasForeignKey<MentorProfile>(m => m.UserId)
+           .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(m => m.Availabilities)
             .WithOne(a => a.Mentor)
