@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using AutoMapper;
+using SkillBridge.Application.Interfaces;
 namespace SkillBridge.Application;
 
 public static class ServiceRegistration
@@ -26,5 +27,6 @@ public static class ServiceRegistration
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
         services.AddValidatorsFromAssembly(assembly);
+
     }
 }

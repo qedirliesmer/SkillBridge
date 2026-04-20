@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace SkillBridge.Application.DTOs.MentorProfileDTOs;
 
-public class MentorProfileUpdateSkillsDto
+public class UpdateMentorStatusDto
 {
     public int MentorProfileId { get; set; }
-    public string UserId { get; set; } = null!;
-    public List<int> SkillIds { get; set; } = new();
+    public int Status { get; set; } 
 }

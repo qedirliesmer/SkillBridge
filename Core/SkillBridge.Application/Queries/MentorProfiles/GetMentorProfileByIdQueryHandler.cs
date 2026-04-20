@@ -2,6 +2,7 @@
 using MediatR;
 using SkillBridge.Application.DTOs.MentorProfileDTOs;
 using SkillBridge.Application.UnitOfWork;
+using SkillBridge.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,10 +26,13 @@ public class GetMentorProfileByIdQueryHandler : IRequestHandler<GetMentorProfile
     {
         var mentor = await _unitOfWork.MentorProfiles.GetMentorWithDetailsAsync(request.Id, cancellationToken);
 
-        if (mentor == null)
+        if (mentor == null || mentor.Status != MentorStatus.Approved)
         {
-            throw new KeyNotFoundException($"Mentor profile with ID {request.Id} was not found.");
+            throw new KeyNotFoundException($"Mentor profile with ID {request.Id} was not found or is not approved.");
         }
-        return _mapper.Map<MentorProfileDetailDto>(mentor);
+
+        var resultDto = _mapper.Map<MentorProfileDetailDto>(mentor);
+
+        return resultDto;
     }
 }

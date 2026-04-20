@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SkillBridge.Domain.Enums;
 
 namespace SkillBridge.Application.Queries.MentorProfiles;
 
@@ -24,11 +25,14 @@ public class GetTopRatedMentorsQueryHandler : IRequestHandler<GetTopRatedMentors
 
     public async Task<IEnumerable<MentorProfileListDto>> Handle(GetTopRatedMentorsQuery request, CancellationToken cancellationToken)
     {
-
         var topMentors = await _unitOfWork.MentorProfiles.GetAllQueryable()
-            .AsNoTracking() 
+            .AsNoTracking()
+            .Where(m => m.Status == MentorStatus.Approved)
+            .Include(m => m.User)
+            .Include(m => m.MentorSkills)
+                .ThenInclude(ms => ms.Skill)
             .OrderByDescending(m => m.Rating)
-            .ThenByDescending(m => m.YearsOfExperience) 
+            .ThenByDescending(m => m.YearsOfExperience)
             .Take(request.Count)
             .ToListAsync(cancellationToken);
 

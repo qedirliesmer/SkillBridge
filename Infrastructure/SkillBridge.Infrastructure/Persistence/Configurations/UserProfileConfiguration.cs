@@ -15,14 +15,6 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
     {
         builder.ToTable("UserProfiles");
 
-        builder.Property(u => u.FirstName)
-            .IsRequired()
-            .HasMaxLength(50);
-
-        builder.Property(u => u.LastName)
-            .IsRequired()
-            .HasMaxLength(50);
-
         builder.Property(u => u.Bio)
             .HasMaxLength(1000)
             .IsRequired(false);
@@ -37,19 +29,19 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 
         builder.Property(u => u.TimeZone)
             .IsRequired()
-            .HasDefaultValue("UTC+4")
+            .HasDefaultValueSql("'UTC+4'")
             .HasMaxLength(50);
-
-        builder.HasOne(u => u.MentorProfile)
-            .WithOne()
-            .HasForeignKey<MentorProfile>(m => m.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(u => u.StudentInterests)
             .WithOne(si => si.Student)
             .HasForeignKey(si => si.StudentId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
+        builder.HasOne(up => up.User)
+            .WithOne(u => u.UserProfile)
+            .HasForeignKey<UserProfile>(up => up.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasMany(u => u.Bookings)
             .WithOne(b => b.Student)
             .HasForeignKey(b => b.StudentId)
@@ -70,6 +62,5 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasIndex(u => new { u.FirstName, u.LastName });
     }
 }

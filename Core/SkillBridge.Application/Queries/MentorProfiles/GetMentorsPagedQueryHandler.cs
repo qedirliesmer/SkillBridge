@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SkillBridge.Domain.Enums;
 
 namespace SkillBridge.Application.Queries.MentorProfiles;
 
@@ -27,15 +28,21 @@ public class GetMentorsPagedQueryHandler : IRequestHandler<GetMentorsPagedQuery,
     {
         var query = _unitOfWork.MentorProfiles.GetAllQueryable();
 
+        query = query.Where(m => m.Status == MentorStatus.Approved);
+
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
-            var term = request.SearchTerm?.ToLower();
-            query = query.Where(m => m.CurrentJobTitle.ToLower().Contains(term) ||
-                                     m.Company.ToLower().Contains(term));
+            var term = request.SearchTerm.Trim().ToLower();
+            query = query.Where(m =>
+                m.User.FirstName.ToLower().Contains(term) ||
+                m.User.LastName.ToLower().Contains(term) ||
+                m.CurrentJobTitle.ToLower().Contains(term) ||
+                m.Company.ToLower().Contains(term));
         }
+
         if (!string.IsNullOrWhiteSpace(request.SkillName))
         {
-            var skill = request.SkillName.ToLower();
+            var skill = request.SkillName.Trim().ToLower();
             query = query.Where(m => m.MentorSkills.Any(ms => ms.Skill.Name.ToLower() == skill));
         }
 
@@ -47,21 +54,21 @@ public class GetMentorsPagedQueryHandler : IRequestHandler<GetMentorsPagedQuery,
         int totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
-      .OrderByDescending(m => m.Rating)  
-      .ThenByDescending(m => m.YearsOfExperience) 
-      .ThenBy(m => m.Id) 
-      .Skip((request.PageNumber - 1) * request.PageSize)
-      .Take(request.PageSize)
-      .ToListAsync(cancellationToken);
+            .Include(m => m.User)
+            .Include(m => m.MentorSkills).ThenInclude(ms => ms.Skill)
+            .OrderByDescending(m => m.Rating) 
+            .ThenByDescending(m => m.YearsOfExperience)
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync(cancellationToken);
 
         var dtos = _mapper.Map<IEnumerable<MentorProfileListDto>>(items);
 
-        return new PagedResult<MentorProfileListDto>
-        {
-            Items = dtos,
-            TotalCount = totalCount,
-            PageNumber = request.PageNumber,
-            TotalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize)
-        };
+        return new PagedResult<MentorProfileListDto>(
+            items: dtos,
+            totalCount: totalCount,
+            pageNumber: request.PageNumber,
+            pageSize: request.PageSize
+        );
     }
 }

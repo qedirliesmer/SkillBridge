@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\SkillBridge.Application\SkillBridge.Application.csproj" />
     <ProjectReference Include="..\..\Infrastructure\SkillBridge.Infrastructure\SkillBridge.Infrastructure.csproj" />
   </ItemGroup>
 

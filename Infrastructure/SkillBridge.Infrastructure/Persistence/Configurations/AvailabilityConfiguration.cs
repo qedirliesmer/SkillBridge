@@ -18,11 +18,9 @@ public class AvailabilityConfiguration : IEntityTypeConfiguration<Availability>
         builder.Property(a => a.MentorId)
             .IsRequired();
 
-        builder.Property(a => a.StartTime)
-            .IsRequired();
+        builder.Property(a => a.StartTime).HasColumnType("time").IsRequired();
+        builder.Property(a => a.EndTime).HasColumnType("time").IsRequired();
 
-        builder.Property(a => a.EndTime)
-            .IsRequired();
         builder.Property(a => a.DayOfWeek)
             .IsRequired();
 
