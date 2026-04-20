@@ -21,6 +21,27 @@ public class MentorProfilesController : ControllerBase
         _mediator = mediator;
     }
 
+    [HttpPut("{id}/status")]
+    [Authorize(Policy = Policies.AdminOnly)]
+    public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateMentorStatusDto statusDto)
+    {
+        if (id != statusDto.MentorProfileId)
+        {
+            return BadRequest(new { Message = "ID mismatch occurred." });
+        }
+
+        try
+        {
+            await _mediator.Send(new UpdateMentorStatusCommand(statusDto));
+
+            return Ok(new { Message = "Mentor status updated successfully and notification email sent." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+    }
+
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateMentorProfileCommand command)
@@ -31,17 +52,6 @@ public class MentorProfilesController : ControllerBase
             Id = id,
             Message = "Mentor profile created successfully. Please wait for admin approval."
         });
-    }
-
-    [HttpPut("{id}/status")]
-    [Authorize(Policy = Policies.AdminOnly)] 
-    public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateMentorStatusDto statusDto)
-    {
-        if (id != statusDto.MentorProfileId)
-            return BadRequest(new { Message = "ID mismatch occurred." });
-
-        await _mediator.Send(new UpdateMentorStatusCommand(statusDto));
-        return Ok(new { Message = "Mentor status updated successfully." });
     }
 
     [HttpGet("admin/all")]
@@ -70,6 +80,7 @@ public class MentorProfilesController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _mediator.Send(new GetMentorProfileByIdQuery(id));
+        if (result == null) return NotFound(new { Message = "Mentor profile not found." });
         return Ok(new { Data = result, Message = "Mentor profile details retrieved successfully." });
     }
 
@@ -81,12 +92,17 @@ public class MentorProfilesController : ControllerBase
             return BadRequest(new { Message = "ID mismatch occurred." });
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-
         var isAdmin = User.IsInRole("Admin");
 
-        await _mediator.Send(new UpdateMentorProfileCommand(updateDto, userId, isAdmin));
-
-        return Ok(new { Message = "Mentor profile updated successfully." });
+        try
+        {
+            await _mediator.Send(new UpdateMentorProfileCommand(updateDto, userId, isAdmin));
+            return Ok(new { Message = "Mentor profile updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
     }
 
     [HttpPut("{id}/skills")]
@@ -97,26 +113,29 @@ public class MentorProfilesController : ControllerBase
             return BadRequest(new { Message = "Mentor ID mismatch occurred." });
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-
         var isAdmin = User.IsInRole("Admin");
 
-        await _mediator.Send(new UpdateMentorSkillsCommand(skillsDto, userId, isAdmin));
-
-        return Ok(new { Message = "Mentor skills updated successfully." });
+        try
+        {
+            await _mediator.Send(new UpdateMentorSkillsCommand(skillsDto, userId, isAdmin));
+            return Ok(new { Message = "Mentor skills updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = Policies.MentorOrAdmin)] 
+    [Authorize(Policy = Policies.MentorOrAdmin)]
     public async Task<IActionResult> Delete(int id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-
         var isAdmin = User.IsInRole("Admin");
 
         var result = await _mediator.Send(new DeleteMentorProfileCommand(id, userId, isAdmin));
 
         if (!result) return NotFound(new { Message = "Mentor profile not found." });
-
         return Ok(new { Message = "Mentor profile deleted successfully." });
     }
 }

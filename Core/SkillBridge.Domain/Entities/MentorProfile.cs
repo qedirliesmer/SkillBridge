@@ -14,6 +14,7 @@ public class MentorProfile:BaseEntity
     public string CurrentJobTitle { get; set; } = null!;
     public string Company { get; set; }=null!;
     public decimal Rating { get; set; } = 0.00m;
+    public string? RejectReason { get; set; }
     public virtual User User { get; set; } = null!;
     public MentorStatus Status { get; set; } = MentorStatus.Pending;
     public virtual ICollection<MentorSkill> MentorSkills { get; set; } = new HashSet<MentorSkill>();

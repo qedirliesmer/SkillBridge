@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SkillBridge.Infrastructure.Persistence.Context;
@@ -11,9 +12,11 @@ using SkillBridge.Infrastructure.Persistence.Context;
 namespace SkillBridge.Infrastructure.Migrations
 {
     [DbContext(typeof(SkillBridgeDbContext))]
-    partial class SkillBridgeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260420145749_AddedSomeChangesToDtos")]
+    partial class AddedSomeChangesToDtos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -342,9 +345,6 @@ namespace SkillBridge.Infrastructure.Migrations
                         .HasPrecision(3, 2)
                         .HasColumnType("numeric(3,2)")
                         .HasDefaultValue(0.00m);
-
-                    b.Property<string>("RejectReason")
-                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
