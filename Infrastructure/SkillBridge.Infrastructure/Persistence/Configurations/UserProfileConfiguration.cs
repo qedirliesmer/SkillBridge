@@ -12,9 +12,9 @@ namespace SkillBridge.Infrastructure.Persistence.Configurations;
 public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 {
     public void Configure(EntityTypeBuilder<UserProfile> builder)
+
     {
         builder.ToTable("UserProfiles");
-
         builder.Property(u => u.Bio)
             .HasMaxLength(1000)
             .IsRequired(false);
@@ -28,9 +28,9 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .IsRequired(false);
 
         builder.Property(u => u.TimeZone)
-            .IsRequired()
-            .HasDefaultValueSql("'UTC+4'")
-            .HasMaxLength(50);
+                   .IsRequired()
+                   .HasDefaultValueSql("'Asia/Baku'")
+                   .HasMaxLength(50);
 
         builder.HasMany(u => u.StudentInterests)
             .WithOne(si => si.Student)

@@ -26,12 +26,11 @@ public static class ServiceRegistration
     {
         services.AddDbContext<SkillBridgeDbContext>(options =>
              options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-        
+
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
         services.AddScoped<IMentorProfileRepository, MentorProfileRepository>();
+        services.AddScoped<IUserProfileRepository, UserProfileRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

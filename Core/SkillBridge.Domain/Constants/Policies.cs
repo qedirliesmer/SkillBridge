@@ -8,9 +8,6 @@ namespace SkillBridge.Domain.Constants;
 
 public static class Policies
 {
-    public const string ManageCategories = "ManageCategories";
-
-    public const string ManageCourses = "ManageCourses";
 
     public const string ManageProfile = "ManageProfile";
     public const string AdminOnly = "AdminOnly";
