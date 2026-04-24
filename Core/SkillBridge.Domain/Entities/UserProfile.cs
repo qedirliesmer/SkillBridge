@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace SkillBridge.Domain.Entities;
 
-public class UserProfile : BaseEntity
+public class UserProfile :BaseEntity
 {
     public string UserId { get; set; } = null!;
     public User User { get; set; } = null!;
     public string? Bio { get; set; }
     public string? ProfilePictureUrl { get; set; }
     public string? LinkedInUrl { get; set; }
-    public string TimeZone { get; set; }= "UTC+4";
+    public string TimeZone { get; set; }=  "Asia/Baku"; 
     public virtual MentorProfile? MentorProfile { get; set; }
     public virtual ICollection<StudentInterest> StudentInterests { get; set; } = new HashSet<StudentInterest>();
     public virtual ICollection<Booking> Bookings { get; set; } = new HashSet<Booking>();

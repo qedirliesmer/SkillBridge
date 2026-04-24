@@ -84,8 +84,6 @@ public static class ServiceCollectionExtensions
         {
             options.AddPolicy(Policies.AdminOnly, p => p.RequireRole(RoleNames.Admin));
             options.AddPolicy(Policies.MentorOrAdmin, p => p.RequireRole(RoleNames.Admin, RoleNames.Mentor));
-            options.AddPolicy(Policies.ManageCategories, p => p.RequireRole(RoleNames.Admin));
-            options.AddPolicy(Policies.ManageCourses, p => p.RequireRole(RoleNames.Admin, RoleNames.Mentor));
             options.AddPolicy(Policies.ManageProfile, p => p.RequireAuthenticatedUser());
         });
 

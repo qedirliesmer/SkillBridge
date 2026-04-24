@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace SkillBridge.Infrastructure.Persistence.UnitOfWork;
 
-public class UnitOfWork:IUnitOfWork
+public class UnitOfWork : IUnitOfWork
 {
     private readonly SkillBridgeDbContext _context;
     private IMentorProfileRepository? _mentorProfiles;
-
+    private IUserProfileRepository? _userProfiles;
     private Hashtable? _repositories;
 
     public UnitOfWork(SkillBridgeDbContext context)
@@ -26,6 +26,8 @@ public class UnitOfWork:IUnitOfWork
     public IMentorProfileRepository MentorProfiles =>
         _mentorProfiles ??= new MentorProfileRepository(_context);
 
+    public IUserProfileRepository UserProfiles =>
+        _userProfiles ??= new UserProfileRepository(_context);
     public IGenericRepository<T> Repository<T>() where T : class
     {
         if (_repositories == null) _repositories = new Hashtable();
@@ -35,19 +37,18 @@ public class UnitOfWork:IUnitOfWork
         if (!_repositories.ContainsKey(type))
         {
             var repositoryType = typeof(GenericRepository<>);
-            var repositoryInstance = Activator.CreateInstance(repositoryType.MakeGenericType(typeof(T)), _context);
+            var repositoryInstance = Activator.CreateInstance(
+                repositoryType.MakeGenericType(typeof(T)), _context);
 
             _repositories.Add(type, repositoryInstance);
         }
 
         return (IGenericRepository<T>)_repositories[type]!;
     }
-
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return await _context.SaveChangesAsync(cancellationToken);
     }
-
     public void Dispose()
     {
         _context.Dispose();
