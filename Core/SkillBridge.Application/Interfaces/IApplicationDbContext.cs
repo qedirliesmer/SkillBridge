@@ -11,6 +11,8 @@ namespace SkillBridge.Application.Interfaces;
 public interface IApplicationDbContext
 {
     DbSet<MentorProfile> MentorProfiles { get; set; }
-
+    DbSet<UserProfile> UserProfiles { get; set; }
+    DbSet<Booking> Bookings { get; set; }
+    DbSet<Availability> Availabilities { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
