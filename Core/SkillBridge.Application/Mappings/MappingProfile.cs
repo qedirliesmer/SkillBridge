@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using SkillBridge.Application.Commands.Bookings;
+using SkillBridge.Application.DTOs.BookingDTOs;
 using SkillBridge.Application.DTOs.MentorProfileDTOs;
 using SkillBridge.Application.DTOs.StudentInterestDTOs;
 using SkillBridge.Application.DTOs.UserProfileDTOs;
 using SkillBridge.Domain.Entities;
+using SkillBridge.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,13 +19,13 @@ public class MappingProfile:Profile
     public MappingProfile()
     {
         CreateMap<Review, MentorProfileReviewDto>()
-            .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src =>
-                (src.FromUserProfile != null && src.FromUserProfile.User != null)
-                ? $"{src.FromUserProfile.User.FirstName} {src.FromUserProfile.User.LastName}"
-                : "Anonymous Student"))
-            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
-            .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
-            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+           .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src =>
+               (src.FromUserProfile != null && src.FromUserProfile.User != null)
+               ? $"{src.FromUserProfile.User.FirstName} {src.FromUserProfile.User.LastName}"
+               : "Anonymous Student"))
+           .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
+           .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
+           .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
 
         CreateMap<MentorProfile, MentorProfileListDto>()
             .ForMember(dest => dest.MentorFullName, opt => opt.MapFrom(src =>
@@ -55,20 +58,40 @@ public class MappingProfile:Profile
             .ForMember(dest => dest.IsMentor, opt => opt.MapFrom(src => src.MentorProfile != null))
             .ForMember(dest => dest.MentorInfo, opt => opt.MapFrom(src => src.MentorProfile));
 
-
         CreateMap<CreateUserProfileDto, UserProfile>()
-            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore()); 
+            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore());
 
         CreateMap<UpdateUserProfileDto, UserProfile>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.UserId, opt => opt.Ignore())
-            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore()); 
+            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore());
 
         CreateMap<UserProfile, PublicUserProfileDto>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src =>
                 src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : string.Empty))
             .ForMember(dest => dest.Interests, opt => opt.MapFrom(src =>
-                src.StudentInterests.Select(si => si.Skill.Name).ToList()));
+                src.StudentInterests != null ? src.StudentInterests.Select(si => si.Skill.Name).ToList() : new List<string>()));
+
+        CreateMap<Booking, BookingDetailDto>()
+            .ForMember(dest => dest.MentorFullName, opt => opt.MapFrom(src =>
+                src.Mentor != null && src.Mentor.User != null ? $"{src.Mentor.User.FirstName} {src.Mentor.User.LastName}" : "Naməlum Mentor"))
+            .ForMember(dest => dest.MentorJobTitle, opt => opt.MapFrom(src => src.Mentor != null ? src.Mentor.CurrentJobTitle : string.Empty))
+            .ForMember(dest => dest.MentorCompany, opt => opt.MapFrom(src => src.Mentor != null ? src.Mentor.Company : string.Empty))
+            .ForMember(dest => dest.StudentFullName, opt => opt.MapFrom(src =>
+                src.Student != null && src.Student.User != null ? $"{src.Student.User.FirstName} {src.Student.User.LastName}" : "Naməlum Tələbə"))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+            .ForMember(dest => dest.IsReviewed, opt => opt.MapFrom(src => src.Review != null))
+            .ForMember(dest => dest.ReviewRating, opt => opt.MapFrom(src => src.Review != null ? (double?)src.Review.Rating : null))
+            .ForMember(dest => dest.ReviewComment, opt => opt.MapFrom(src => src.Review != null ? src.Review.Comment : null))
+            .ForMember(dest => dest.IsCurrentUserMentor, opt => opt.Ignore()); 
+
+        CreateMap<Booking, BookingListDto>()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+            .ForMember(dest => dest.PartnerFullName, opt => opt.Ignore())
+            .ForMember(dest => dest.PartnerJobTitleOrBio, opt => opt.Ignore());
+        CreateMap<CreateBookingCommand, Booking>()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => BookingStatus.Pending))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
         CreateMap<MentorProfileCreateDto, MentorProfile>().ForMember(d => d.UserId, o => o.Ignore());
         CreateMap<MentorProfileUpdateDto, MentorProfile>()
@@ -78,4 +101,5 @@ public class MappingProfile:Profile
         CreateMap<Skill, InterestDto>();
     }
 }
+
 

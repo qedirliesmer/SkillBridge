@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SkillBridge.Application.Abstracts.Services;
+using SkillBridge.Application.Common.Interfaces;
 using SkillBridge.Application.Interfaces;
 using SkillBridge.Application.Options;
 using SkillBridge.Application.UnitOfWork;
@@ -31,10 +32,12 @@ public static class ServiceRegistration
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IMentorProfileRepository, MentorProfileRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+        services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IApplicationDbContext>(provider =>
         provider.GetRequiredService<SkillBridgeDbContext>());  
         services.AddScoped<IEmailService, SmtpEmailService>();
