@@ -16,6 +16,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly SkillBridgeDbContext _context;
     private IMentorProfileRepository? _mentorProfiles;
     private IUserProfileRepository? _userProfiles;
+    private IAvailabilityRepository? _availabilities;
     private IBookingRepository? _bookings;
     private Hashtable? _repositories;
 
@@ -29,6 +30,9 @@ public class UnitOfWork : IUnitOfWork
         _mentorProfiles ??= new MentorProfileRepository(_context);
     public IUserProfileRepository UserProfiles =>
         _userProfiles ??= new UserProfileRepository(_context);
+
+    public IAvailabilityRepository Availabilities =>
+        _availabilities ??= new AvailabilityRepository(_context);
     public IBookingRepository Bookings =>
         _bookings ??= new BookingRepository(_context);
     public IGenericRepository<T> Repository<T>() where T : class
