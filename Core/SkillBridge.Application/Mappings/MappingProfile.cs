@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SkillBridge.Application.Commands.Bookings;
+using SkillBridge.Application.DTOs.AvaiabilityDTOs;
 using SkillBridge.Application.DTOs.BookingDTOs;
 using SkillBridge.Application.DTOs.MentorProfileDTOs;
 using SkillBridge.Application.DTOs.StudentInterestDTOs;
@@ -92,6 +93,24 @@ public class MappingProfile:Profile
         CreateMap<CreateBookingCommand, Booking>()
             .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => BookingStatus.Pending))
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
+        CreateMap<Availability, AvailabilityDto>()
+            .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => (int)src.DayOfWeek))
+            .ForMember(dest => dest.DayOfWeekName, opt => opt.MapFrom(src => src.DayOfWeek.ToString()))
+            .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime.ToString(@"hh\:mm")))
+            .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime.ToString(@"hh\:mm")));
+
+        CreateMap<CreateAvailabilityDto, Availability>()
+            .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => (Days)src.DayOfWeek))
+            .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+            .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
+            .ForMember(dest => dest.Id, opt => opt.Ignore()); 
+
+        CreateMap<UpdateAvailabilityDto, Availability>()
+            .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => (Days)src.DayOfWeek))
+            .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+            .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
+            .ForMember(dest => dest.MentorId, opt => opt.Ignore());
 
         CreateMap<MentorProfileCreateDto, MentorProfile>().ForMember(d => d.UserId, o => o.Ignore());
         CreateMap<MentorProfileUpdateDto, MentorProfile>()
