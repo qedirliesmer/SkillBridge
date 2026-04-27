@@ -36,6 +36,7 @@ public static class ServiceRegistration
         services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

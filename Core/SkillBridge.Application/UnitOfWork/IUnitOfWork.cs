@@ -13,6 +13,7 @@ public interface IUnitOfWork:IDisposable
     IMentorProfileRepository MentorProfiles { get; }
     IAvailabilityRepository Availabilities { get; }
     IBookingRepository Bookings { get; }
+    IReviewRepository Reviews { get; }
     ISkillRepository Skills { get; }
     ICategoryRepository Categories { get; }
     IGenericRepository<T> Repository<T>() where T : class;
