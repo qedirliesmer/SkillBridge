@@ -18,6 +18,7 @@ public class UnitOfWork : IUnitOfWork
     private IUserProfileRepository? _userProfiles;
     private IAvailabilityRepository? _availabilities;
     private IBookingRepository? _bookings;
+    private ISkillRepository? _skills;
     private Hashtable? _repositories;
 
 
@@ -35,6 +36,9 @@ public class UnitOfWork : IUnitOfWork
         _availabilities ??= new AvailabilityRepository(_context);
     public IBookingRepository Bookings =>
         _bookings ??= new BookingRepository(_context);
+
+    public ISkillRepository Skills =>
+        _skills ??= new SkillRepository(_context);
     public IGenericRepository<T> Repository<T>() where T : class
     {
         if (_repositories == null) _repositories = new Hashtable();

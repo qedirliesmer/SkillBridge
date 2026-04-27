@@ -13,6 +13,7 @@ public interface IUnitOfWork:IDisposable
     IMentorProfileRepository MentorProfiles { get; }
     IAvailabilityRepository Availabilities { get; }
     IBookingRepository Bookings { get; }
+    ISkillRepository Skills { get; }
     IGenericRepository<T> Repository<T>() where T : class;
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
