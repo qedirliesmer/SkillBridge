@@ -3,6 +3,7 @@ using SkillBridge.Application.Commands.Bookings;
 using SkillBridge.Application.DTOs.AvaiabilityDTOs;
 using SkillBridge.Application.DTOs.BookingDTOs;
 using SkillBridge.Application.DTOs.MentorProfileDTOs;
+using SkillBridge.Application.DTOs.SkillDTOs;
 using SkillBridge.Application.DTOs.StudentInterestDTOs;
 using SkillBridge.Application.DTOs.UserProfileDTOs;
 using SkillBridge.Domain.Entities;
@@ -117,6 +118,24 @@ public class MappingProfile:Profile
             .ForMember(d => d.Id, o => o.Ignore())
             .ForMember(d => d.UserId, o => o.Ignore());
 
+        CreateMap<Skill, SkillDto>()
+    .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
+
+        CreateMap<Skill, SkillWithStatsDto>()
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.MentorCount, opt => opt.MapFrom(src => src.MentorSkills.Count))
+            .ForMember(dest => dest.StudentInterestCount, opt => opt.MapFrom(src => src.StudentInterests.Count));
+
+        CreateMap<CreateSkillDto, Skill>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Category, opt => opt.Ignore())
+            .ForMember(dest => dest.MentorSkills, opt => opt.Ignore())
+            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore());
+
+        CreateMap<UpdateSkillDto, Skill>()
+            .ForMember(dest => dest.Category, opt => opt.Ignore())
+            .ForMember(dest => dest.MentorSkills, opt => opt.Ignore())
+            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore());
         CreateMap<Skill, InterestDto>();
     }
 }
