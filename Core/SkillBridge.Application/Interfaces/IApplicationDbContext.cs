@@ -16,5 +16,6 @@ public interface IApplicationDbContext
     DbSet<Skill> Skills { get; set; }
     DbSet<Availability> Availabilities { get; set; }
     DbSet<Category> Categories { get; set; }
+    DbSet<Review> Reviews { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

@@ -19,6 +19,7 @@ public class UnitOfWork : IUnitOfWork
     private IAvailabilityRepository? _availabilities;
     private IBookingRepository? _bookings;
     private ISkillRepository? _skills;
+    private IReviewRepository? _reviews;
     private ICategoryRepository? _categories;
     private Hashtable? _repositories;
 
@@ -35,6 +36,8 @@ public class UnitOfWork : IUnitOfWork
 
     public IAvailabilityRepository Availabilities =>
         _availabilities ??= new AvailabilityRepository(_context);
+    public IReviewRepository Reviews =>
+        _reviews ??= new ReviewRepository(_context);
     public IBookingRepository Bookings =>
         _bookings ??= new BookingRepository(_context);
 

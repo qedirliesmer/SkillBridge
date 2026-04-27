@@ -4,6 +4,7 @@ using SkillBridge.Application.DTOs.AvaiabilityDTOs;
 using SkillBridge.Application.DTOs.BookingDTOs;
 using SkillBridge.Application.DTOs.CategoryDTOs;
 using SkillBridge.Application.DTOs.MentorProfileDTOs;
+using SkillBridge.Application.DTOs.ReviewDTOs;
 using SkillBridge.Application.DTOs.SkillDTOs;
 using SkillBridge.Application.DTOs.StudentInterestDTOs;
 using SkillBridge.Application.DTOs.UserProfileDTOs;
@@ -21,7 +22,7 @@ public class MappingProfile:Profile
 {
     public MappingProfile()
     {
-        CreateMap<Review, MentorProfileReviewDto>()
+        CreateMap<Review, DTOs.MentorProfileDTOs.MentorProfileReviewDto>()
            .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src =>
                (src.FromUserProfile != null && src.FromUserProfile.User != null)
                ? $"{src.FromUserProfile.User.FirstName} {src.FromUserProfile.User.LastName}"
@@ -152,6 +153,33 @@ public class MappingProfile:Profile
             .ForMember(dest => dest.TotalSkillsCount, opt => opt.MapFrom(src =>
                 src.Skills != null ? src.Skills.Count() : 0))
             .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.Skills));
+
+        CreateMap<Review, DTOs.ReviewDTOs.MentorProfileReviewDto>()
+    .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src =>
+        src.FromUserProfile != null && src.FromUserProfile.User != null
+        ? $"{src.FromUserProfile.User.FirstName} {src.FromUserProfile.User.LastName}"
+        : "Anonymous Student"))
+    .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+
+        CreateMap<Review, ReviewDetailDto>()
+            .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src =>
+                src.FromUserProfile != null && src.FromUserProfile.User != null
+                ? $"{src.FromUserProfile.User.FirstName} {src.FromUserProfile.User.LastName}"
+                : "Unknown Student"))
+            .ForMember(dest => dest.MentorName, opt => opt.MapFrom(src =>
+                src.ToMentorProfile != null && src.ToMentorProfile.User != null
+                ? $"{src.ToMentorProfile.User.FirstName} {src.ToMentorProfile.User.LastName}"
+                : "Unknown Mentor"))
+            .ForMember(dest => dest.BookingId, opt => opt.MapFrom(src => src.BookingId))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+
+        CreateMap<CreateReviewDto, Review>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.FromUserProfileId, opt => opt.Ignore()) 
+            .ForMember(dest => dest.ToMentorProfileId, opt => opt.Ignore()) 
+            .ForMember(dest => dest.Booking, opt => opt.Ignore())
+            .ForMember(dest => dest.FromUserProfile, opt => opt.Ignore())
+            .ForMember(dest => dest.ToMentorProfile, opt => opt.Ignore());
     }
 }
 
