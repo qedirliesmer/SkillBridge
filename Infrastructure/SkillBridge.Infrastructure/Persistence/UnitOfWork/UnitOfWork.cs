@@ -19,6 +19,7 @@ public class UnitOfWork : IUnitOfWork
     private IAvailabilityRepository? _availabilities;
     private IBookingRepository? _bookings;
     private ISkillRepository? _skills;
+    private ICategoryRepository? _categories;
     private Hashtable? _repositories;
 
 
@@ -39,6 +40,9 @@ public class UnitOfWork : IUnitOfWork
 
     public ISkillRepository Skills =>
         _skills ??= new SkillRepository(_context);
+
+    public ICategoryRepository Categories =>
+      _categories ??= new CategoryRepository(_context);
     public IGenericRepository<T> Repository<T>() where T : class
     {
         if (_repositories == null) _repositories = new Hashtable();

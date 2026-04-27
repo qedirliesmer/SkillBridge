@@ -14,6 +14,7 @@ public interface IUnitOfWork:IDisposable
     IAvailabilityRepository Availabilities { get; }
     IBookingRepository Bookings { get; }
     ISkillRepository Skills { get; }
+    ICategoryRepository Categories { get; }
     IGenericRepository<T> Repository<T>() where T : class;
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
