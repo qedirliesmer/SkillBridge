@@ -13,4 +13,6 @@ public class Skill:BaseEntity
     public virtual Category Category { get; set; } = null!;
     public virtual ICollection<MentorSkill> MentorSkills { get; set; } = new HashSet<MentorSkill>();
     public virtual ICollection<StudentInterest> StudentInterests { get; set; } = new HashSet<StudentInterest>();
+
+    public ICollection<SkillMedia> MediaItems { get; set; } = new List<SkillMedia>();
 }

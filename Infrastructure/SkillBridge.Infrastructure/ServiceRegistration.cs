@@ -9,6 +9,7 @@ using SkillBridge.Application.Interfaces;
 using SkillBridge.Application.Options;
 using SkillBridge.Application.UnitOfWork;
 using SkillBridge.Domain.Entities;
+using SkillBridge.Infrastructure.Extensions;
 using SkillBridge.Infrastructure.Persistence.Context;
 using SkillBridge.Infrastructure.Persistence.Repositories;
 using SkillBridge.Infrastructure.Persistence.UnitOfWork;
@@ -45,5 +46,8 @@ public static class ServiceRegistration
         services.AddScoped<IApplicationDbContext>(provider =>
         provider.GetRequiredService<SkillBridgeDbContext>());  
         services.AddScoped<IEmailService, SmtpEmailService>();
+        services.AddMinioStorage(configuration);
+
+        services.AddScoped<IFileStorageService, S3MinioFileStorageService>();
     }
 }

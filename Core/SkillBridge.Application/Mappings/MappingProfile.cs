@@ -119,25 +119,30 @@ public class MappingProfile:Profile
         CreateMap<MentorProfileUpdateDto, MentorProfile>()
             .ForMember(d => d.Id, o => o.Ignore())
             .ForMember(d => d.UserId, o => o.Ignore());
+        CreateMap<SkillMedia, SkillMediaItemDto>();
 
         CreateMap<Skill, SkillDto>()
-    .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.MediaItems, opt => opt.MapFrom(src => src.MediaItems));
 
         CreateMap<Skill, SkillWithStatsDto>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
             .ForMember(dest => dest.MentorCount, opt => opt.MapFrom(src => src.MentorSkills.Count))
-            .ForMember(dest => dest.StudentInterestCount, opt => opt.MapFrom(src => src.StudentInterests.Count));
+            .ForMember(dest => dest.StudentInterestCount, opt => opt.MapFrom(src => src.StudentInterests.Count))
+            .ForMember(dest => dest.MediaItems, opt => opt.MapFrom(src => src.MediaItems));
 
         CreateMap<CreateSkillDto, Skill>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
             .ForMember(dest => dest.MentorSkills, opt => opt.Ignore())
-            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore());
+            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore())
+            .ForMember(dest => dest.MediaItems, opt => opt.Ignore()); 
 
         CreateMap<UpdateSkillDto, Skill>()
             .ForMember(dest => dest.Category, opt => opt.Ignore())
             .ForMember(dest => dest.MentorSkills, opt => opt.Ignore())
-            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore());
+            .ForMember(dest => dest.StudentInterests, opt => opt.Ignore())
+            .ForMember(dest => dest.MediaItems, opt => opt.Ignore()); 
         CreateMap<Skill, InterestDto>();
 
         CreateMap<Category, CategoryDto>();

@@ -11,6 +11,7 @@ public class SkillWithStatsDto
     public int Id { get; set; }
     public string Name { get; set; } = null!;
     public string CategoryName { get; set; } = null!;
-    public int MentorCount { get; set; } 
-    public int StudentInterestCount { get; set; } 
+    public int MentorCount { get; set; }
+    public int StudentInterestCount { get; set; }
+    public List<SkillMediaItemDto> MediaItems { get; set; } = new();
 }

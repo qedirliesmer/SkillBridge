@@ -16,13 +16,15 @@ public class SkillRepository : GenericRepository<Skill>, ISkillRepository
     {
     }
 
-    public async Task<IEnumerable<Skill>> GetSkillsWithCategoriesAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Skill>> GetSkillsWithDetailsAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Skills
             .Include(s => s.Category)
-            .Include(s => s.MentorSkills) 
-            .Include(s => s.StudentInterests) 
+            .Include(s => s.MediaItems) 
+            .Include(s => s.MentorSkills)
+            .Include(s => s.StudentInterests)
             .AsNoTracking()
+            .OrderBy(s => s.Name) 
             .ToListAsync(cancellationToken);
     }
 }

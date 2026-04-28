@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using SkillBridge.Application.Abstracts.Services;
 using SkillBridge.Application.Common.Interfaces;
 using SkillBridge.Application.Common.Models;
 using SkillBridge.Application.UnitOfWork;
@@ -15,20 +17,33 @@ public record DeleteSkillCommand(int Id) : IRequest<IResult<Unit>>;
 public class DeleteSkillCommandHandler : IRequestHandler<DeleteSkillCommand, IResult<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IFileStorageService _storageService; 
 
-    public DeleteSkillCommandHandler(IUnitOfWork unitOfWork)
+    public DeleteSkillCommandHandler(IUnitOfWork unitOfWork, IFileStorageService storageService)
     {
         _unitOfWork = unitOfWork;
+        _storageService = storageService;
     }
 
     public async Task<IResult<Unit>> Handle(DeleteSkillCommand request, CancellationToken cancellationToken)
     {
-        var skill = await _unitOfWork.Skills.GetByIdAsync(request.Id, cancellationToken);
+        var skill = await _unitOfWork.Skills.GetWhere(s => s.Id == request.Id)
+            .Include(s => s.MediaItems)
+            .FirstOrDefaultAsync(cancellationToken);
+
         if (skill == null) return Result<Unit>.Failure("Skill not found.");
+
+        if (skill.MediaItems != null && skill.MediaItems.Any())
+        {
+            foreach (var media in skill.MediaItems)
+            {
+                await _storageService.DeleteFileAsync(media.ObjectKey, cancellationToken);
+            }
+        }
 
         _unitOfWork.Skills.Delete(skill);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<Unit>.Success(Unit.Value, "Skill deleted successfully along with its associations.");
+        return Result<Unit>.Success(Unit.Value, "Skill and all associated media files deleted successfully.");
     }
 }
