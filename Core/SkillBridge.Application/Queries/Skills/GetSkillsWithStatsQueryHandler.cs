@@ -25,7 +25,7 @@ public class GetSkillsWithStatsQueryHandler : IRequestHandler<GetSkillsWithStats
 
     public async Task<IResult<IEnumerable<SkillWithStatsDto>>> Handle(GetSkillsWithStatsQuery request, CancellationToken cancellationToken)
     {
-        var skills = await _unitOfWork.Skills.GetSkillsWithCategoriesAsync(cancellationToken);
+        var skills = await _unitOfWork.Skills.GetSkillsWithDetailsAsync(cancellationToken);
 
         var dtos = _mapper.Map<IEnumerable<SkillWithStatsDto>>(skills);
 

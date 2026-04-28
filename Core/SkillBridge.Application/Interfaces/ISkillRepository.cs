@@ -9,5 +9,5 @@ namespace SkillBridge.Application.Interfaces;
 
 public interface ISkillRepository : IGenericRepository<Skill>
 {
-    Task<IEnumerable<Skill>> GetSkillsWithCategoriesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<Skill>> GetSkillsWithDetailsAsync(CancellationToken cancellationToken = default);
 }

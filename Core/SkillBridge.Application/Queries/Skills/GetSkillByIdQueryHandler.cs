@@ -26,11 +26,15 @@ public class GetSkillByIdQueryHandler : IRequestHandler<GetSkillByIdQuery, IResu
 
     public async Task<IResult<SkillDto>> Handle(GetSkillByIdQuery request, CancellationToken cancellationToken)
     {
-        var skill = await _unitOfWork.Skills.GetWhere(s => s.Id == request.Id)
+        var skill = await _unitOfWork.Skills
+            .GetWhere(s => s.Id == request.Id)
             .Include(s => s.Category)
+            .Include(s => s.MediaItems)
+            .AsNoTracking() 
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (skill == null) return Result<SkillDto>.Failure("Skill not found.");
+        if (skill == null)
+            return Result<SkillDto>.Failure("Skill not found.");
 
         var dto = _mapper.Map<SkillDto>(skill);
         return Result<SkillDto>.Success(dto);

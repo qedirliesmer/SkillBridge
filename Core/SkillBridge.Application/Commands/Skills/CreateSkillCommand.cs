@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using SkillBridge.Application.Abstracts.Services;
 using SkillBridge.Application.Common.Interfaces;
 using SkillBridge.Application.Common.Models;
 using SkillBridge.Application.DTOs.SkillDTOs;
@@ -19,11 +20,13 @@ public class CreateSkillCommandHandler : IRequestHandler<CreateSkillCommand, IRe
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IFileStorageService _storageService; 
 
-    public CreateSkillCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateSkillCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IFileStorageService storageService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _storageService = storageService;
     }
 
     public async Task<IResult<int>> Handle(CreateSkillCommand request, CancellationToken cancellationToken)
@@ -35,9 +38,28 @@ public class CreateSkillCommandHandler : IRequestHandler<CreateSkillCommand, IRe
         if (nameExists) return Result<int>.Failure("This skill already exists.");
 
         var skill = _mapper.Map<Skill>(request.Dto);
+
         await _unitOfWork.Skills.AddAsync(skill, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        if (request.Dto.Images != null && request.Dto.Images.Any())
+        {
+            int order = 1;
+            foreach (var file in request.Dto.Images)
+            {
+                using var stream = file.OpenReadStream();
+                var objectKey = await _storageService.SaveAsync(stream, file.FileName, file.ContentType, skill.Id, cancellationToken);
 
-        return Result<int>.Success(skill.Id, "Skill created successfully.");
+                skill.MediaItems.Add(new SkillMedia
+                {
+                    ObjectKey = objectKey,
+                    Order = order++,
+                    SkillId = skill.Id
+                });
+            }
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        return Result<int>.Success(skill.Id, "Skill created successfully with media.");
     }
 }

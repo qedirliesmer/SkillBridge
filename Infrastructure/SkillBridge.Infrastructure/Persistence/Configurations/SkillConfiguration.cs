@@ -36,5 +36,10 @@ public class SkillConfiguration : IEntityTypeConfiguration<Skill>
             .WithOne(si => si.Skill)
             .HasForeignKey(si => si.SkillId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(s => s.MediaItems)
+        .WithOne(sm => sm.Skill)
+        .HasForeignKey(sm => sm.SkillId)
+        .OnDelete(DeleteBehavior.Cascade); 
     }
 }

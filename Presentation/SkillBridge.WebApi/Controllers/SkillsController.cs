@@ -38,15 +38,20 @@ public class SkillsController : ControllerBase
 
     [HttpPost]
     [Authorize(Policy = Policies.AdminOnly)]
-    public async Task<IActionResult> Create([FromBody] CreateSkillDto dto)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Create([FromForm] CreateSkillDto dto)
     {
         var result = await _mediator.Send(new CreateSkillCommand(dto));
-        return result.IsSuccess ? Ok(result) : BadRequest(result);
+
+        return result.IsSuccess
+            ? CreatedAtAction(nameof(GetById), new { id = result.Data }, result)
+            : BadRequest(result);
     }
 
     [HttpPut]
     [Authorize(Policy = Policies.AdminOnly)]
-    public async Task<IActionResult> Update([FromBody] UpdateSkillDto dto)
+    [Consumes("multipart/form-data")] 
+    public async Task<IActionResult> Update([FromForm] UpdateSkillDto dto)
     {
         var result = await _mediator.Send(new UpdateSkillCommand(dto));
         return result.IsSuccess ? Ok(result) : BadRequest(result);

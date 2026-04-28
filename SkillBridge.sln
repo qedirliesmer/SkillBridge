@@ -9,13 +9,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{5A620E68-6252-41EE-B32E-878272AF47BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillBridge.Application", "Core\SkillBridge.Application\SkillBridge.Application.csproj", "{5A7495EF-94EF-413C-BFEC-87768836D475}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillBridge.Application", "Core\SkillBridge.Application\SkillBridge.Application.csproj", "{5A7495EF-94EF-413C-BFEC-87768836D475}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillBridge.Domain", "Core\SkillBridge.Domain\SkillBridge.Domain.csproj", "{4857E449-2D40-45D2-BD49-B34795A06057}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillBridge.Domain", "Core\SkillBridge.Domain\SkillBridge.Domain.csproj", "{4857E449-2D40-45D2-BD49-B34795A06057}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillBridge.Infrastructure", "Infrastructure\SkillBridge.Infrastructure\SkillBridge.Infrastructure.csproj", "{0DDC3846-F48B-4942-B037-0EC1D19F0453}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillBridge.Infrastructure", "Infrastructure\SkillBridge.Infrastructure\SkillBridge.Infrastructure.csproj", "{0DDC3846-F48B-4942-B037-0EC1D19F0453}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillBridge.WebApi", "Presentation\SkillBridge.WebApi\SkillBridge.WebApi.csproj", "{C862B9B2-5D36-4183-8004-2935222675A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillBridge.WebApi", "Presentation\SkillBridge.WebApi\SkillBridge.WebApi.csproj", "{C862B9B2-5D36-4183-8004-2935222675A1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A8EDD12-B1BF-446E-AFB5-E5BF2ACE69D4}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

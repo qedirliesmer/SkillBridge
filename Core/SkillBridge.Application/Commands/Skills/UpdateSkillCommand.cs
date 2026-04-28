@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using SkillBridge.Application.Abstracts.Services;
 using SkillBridge.Application.Common.Interfaces;
 using SkillBridge.Application.Common.Models;
 using SkillBridge.Application.DTOs.SkillDTOs;
@@ -17,24 +19,51 @@ public record UpdateSkillCommand(UpdateSkillDto Dto) : IRequest<IResult<Unit>>;
 public class UpdateSkillCommandHandler : IRequestHandler<UpdateSkillCommand, IResult<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IFileStorageService _storageService; 
 
-    public UpdateSkillCommandHandler(IUnitOfWork unitOfWork)
+    public UpdateSkillCommandHandler(IUnitOfWork unitOfWork, IFileStorageService storageService)
     {
         _unitOfWork = unitOfWork;
+        _storageService = storageService;
     }
 
     public async Task<IResult<Unit>> Handle(UpdateSkillCommand request, CancellationToken cancellationToken)
     {
-        var skill = await _unitOfWork.Skills.GetByIdAsync(request.Dto.Id, cancellationToken);
+        var skill = await _unitOfWork.Skills.GetWhere(s => s.Id == request.Dto.Id)
+            .Include(s => s.MediaItems)
+            .FirstOrDefaultAsync(cancellationToken);
+
         if (skill == null) return Result<Unit>.Failure("Skill not found.");
 
-        if (skill.Name.ToLower() != request.Dto.Name.ToLower())
+        if (request.Dto.RemoveMediaIds != null && request.Dto.RemoveMediaIds.Any())
         {
-            var nameExists = await _unitOfWork.Skills.AnyAsync(s => s.Name.ToLower() == request.Dto.Name.ToLower(), cancellationToken);
-            if (nameExists) return Result<Unit>.Failure("Another skill with this name already exists.");
+            var mediasToRemove = skill.MediaItems
+                .Where(m => request.Dto.RemoveMediaIds.Contains(m.Id)).ToList();
+
+            foreach (var media in mediasToRemove)
+            {
+                await _storageService.DeleteFileAsync(media.ObjectKey, cancellationToken);
+                skill.MediaItems.Remove(media);
+            }
         }
-        var categoryExists = await _unitOfWork.Repository<Category>().AnyAsync(c => c.Id == request.Dto.CategoryId, cancellationToken);
-        if (!categoryExists) return Result<Unit>.Failure("Selected category not found.");
+
+        if (request.Dto.NewImages != null && request.Dto.NewImages.Any())
+        {
+            int lastOrder = skill.MediaItems.Any() ? skill.MediaItems.Max(m => m.Order) : 0;
+
+            foreach (var file in request.Dto.NewImages)
+            {
+                using var stream = file.OpenReadStream();
+                var objectKey = await _storageService.SaveAsync(stream, file.FileName, file.ContentType, skill.Id, cancellationToken);
+
+                skill.MediaItems.Add(new SkillMedia
+                {
+                    ObjectKey = objectKey,
+                    Order = ++lastOrder,
+                    SkillId = skill.Id
+                });
+            }
+        }
 
         skill.Name = request.Dto.Name;
         skill.CategoryId = request.Dto.CategoryId;
@@ -42,6 +71,6 @@ public class UpdateSkillCommandHandler : IRequestHandler<UpdateSkillCommand, IRe
         _unitOfWork.Skills.Update(skill);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<Unit>.Success(Unit.Value, "Skill updated successfully.");
+        return Result<Unit>.Success(Unit.Value, "Skill updated successfully with media.");
     }
 }
