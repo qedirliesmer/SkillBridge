@@ -1,33 +1,59 @@
-using SkillBridge.Application;
+﻿using SkillBridge.Application;
 using SkillBridge.Domain.Constants;
 using SkillBridge.Infrastructure;
 using SkillBridge.WebApi;
 using SkillBridge.WebApi.Extensions;
+using SkillBridge.WebApi.Middlewares; 
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddApiServices(builder.Configuration);
 
-builder.Services.AddControllers();
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddApplicationServices();
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
 
-builder.Services.AddEndpointsApiExplorer();
+builder.Host.UseSerilog();
 
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
+    Log.Information("SkillBridge tətbiqi başladılır...");
+
+    builder.Services.AddApiServices(builder.Configuration);
+    builder.Services.AddControllers();
+    builder.Services.AddInfrastructureServices(builder.Configuration);
+    builder.Services.AddApplicationServices();
+    builder.Services.AddEndpointsApiExplorer();
+
+    var app = builder.Build();
+
+    app.UseSerilogRequestLogging(); 
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    if (app.Environment.IsDevelopment())
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SkillBridge API V1");
-        options.RoutePrefix = string.Empty;
-    });
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "SkillBridge API V1");
+            options.RoutePrefix = string.Empty;
+        });
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseApiPipeline();
+
+    app.MapControllers();
+
+    Log.Information("Tətbiq uğurla işə düşdü.");
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-app.UseApiPipeline();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Tətbiq gözlənilmədən dayandı!");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
