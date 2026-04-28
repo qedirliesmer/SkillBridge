@@ -14,12 +14,17 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
+
 try
 {
     Log.Information("SkillBridge tətbiqi başladılır...");
 
     builder.Services.AddApiServices(builder.Configuration);
-    builder.Services.AddControllers();
     builder.Services.AddInfrastructureServices(builder.Configuration);
     builder.Services.AddApplicationServices();
     builder.Services.AddEndpointsApiExplorer();

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using SkillBridge.Application.Abstracts.Services;
 using SkillBridge.Application.Common.Interfaces;
 using SkillBridge.Application.Common.Models;
@@ -19,12 +20,14 @@ public record UpdateSkillCommand(UpdateSkillDto Dto) : IRequest<IResult<Unit>>;
 public class UpdateSkillCommandHandler : IRequestHandler<UpdateSkillCommand, IResult<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IFileStorageService _storageService; 
+    private readonly IFileStorageService _storageService;
+    private readonly IDistributedCache _cache; 
 
-    public UpdateSkillCommandHandler(IUnitOfWork unitOfWork, IFileStorageService storageService)
+    public UpdateSkillCommandHandler(IUnitOfWork unitOfWork, IFileStorageService storageService, IDistributedCache cache)
     {
         _unitOfWork = unitOfWork;
         _storageService = storageService;
+        _cache = cache;
     }
 
     public async Task<IResult<Unit>> Handle(UpdateSkillCommand request, CancellationToken cancellationToken)
@@ -70,6 +73,9 @@ public class UpdateSkillCommandHandler : IRequestHandler<UpdateSkillCommand, IRe
 
         _unitOfWork.Skills.Update(skill);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _cache.RemoveAsync("all_skills_stats", cancellationToken);
+        await _cache.RemoveAsync($"skill_{skill.Id}", cancellationToken);
 
         return Result<Unit>.Success(Unit.Value, "Skill updated successfully with media.");
     }

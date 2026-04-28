@@ -29,6 +29,12 @@ public static class ServiceRegistration
         services.AddDbContext<SkillBridgeDbContext>(options =>
              options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = configuration.GetConnectionString("RedisConnection");
+            options.InstanceName = "SkillBridge_";
+        });
+
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IMentorProfileRepository, MentorProfileRepository>();
