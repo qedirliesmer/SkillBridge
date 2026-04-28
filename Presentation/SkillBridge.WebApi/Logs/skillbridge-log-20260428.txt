@@ -1,0 +1,28 @@
+2026-04-28 05:28:48.959 -07:00 [INF] SkillBridge t?tbiqi ba?lad?l?r...
+2026-04-28 05:28:53.672 -07:00 [INF] T?tbiq u?urla i?? dü?dü.
+2026-04-28 05:28:53.886 -07:00 [WRN] The WebRootPath was not found: C:\Users\HP\source\repos\SkillBridge\Presentation\SkillBridge.WebApi\wwwroot. Static files may be unavailable.
+2026-04-28 05:28:55.723 -07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 259.9530 ms
+2026-04-28 05:30:14.704 -07:00 [INF] SkillBridge t?tbiqi ba?lad?l?r...
+2026-04-28 05:30:18.563 -07:00 [INF] T?tbiq u?urla i?? dü?dü.
+2026-04-28 05:30:18.738 -07:00 [WRN] The WebRootPath was not found: C:\Users\HP\source\repos\SkillBridge\Presentation\SkillBridge.WebApi\wwwroot. Static files may be unavailable.
+2026-04-28 05:30:20.353 -07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 268.5641 ms
+2026-04-28 05:30:58.268 -07:00 [INF] SkillBridge t?tbiqi ba?lad?l?r...
+2026-04-28 05:31:02.122 -07:00 [INF] T?tbiq u?urla i?? dü?dü.
+2026-04-28 05:31:02.769 -07:00 [WRN] The WebRootPath was not found: C:\Users\HP\source\repos\SkillBridge\Presentation\SkillBridge.WebApi\wwwroot. Static files may be unavailable.
+2026-04-28 05:31:04.410 -07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 235.2403 ms
+2026-04-28 05:37:36.871 -07:00 [INF] SkillBridge t?tbiqi ba?lad?l?r...
+2026-04-28 05:37:41.558 -07:00 [INF] T?tbiq u?urla i?? dü?dü.
+2026-04-28 05:37:41.681 -07:00 [WRN] The WebRootPath was not found: C:\Users\HP\source\repos\SkillBridge\Presentation\SkillBridge.WebApi\wwwroot. Static files may be unavailable.
+2026-04-28 05:37:43.108 -07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 178.5700 ms
+2026-04-28 05:53:22.575 -07:00 [INF] SkillBridge tətbiqi başladılır...
+2026-04-28 05:53:26.952 -07:00 [INF] Tətbiq uğurla işə düşdü.
+2026-04-28 05:53:27.094 -07:00 [WRN] The WebRootPath was not found: C:\Users\HP\source\repos\SkillBridge\Presentation\SkillBridge.WebApi\wwwroot. Static files may be unavailable.
+2026-04-28 05:53:28.216 -07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 167.0943 ms
+2026-04-28 05:58:17.868 -07:00 [INF] SkillBridge tətbiqi başladılır...
+2026-04-28 05:58:21.700 -07:00 [INF] Tətbiq uğurla işə düşdü.
+2026-04-28 05:58:21.876 -07:00 [WRN] The WebRootPath was not found: C:\Users\HP\source\repos\SkillBridge\Presentation\SkillBridge.WebApi\wwwroot. Static files may be unavailable.
+2026-04-28 05:58:23.406 -07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 257.6971 ms
+2026-04-28 05:58:31.358 -07:00 [WRN] You do not have a valid license key for the Lucky Penny software MediatR. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license.
+2026-04-28 05:58:31.595 -07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2026-04-28 05:58:31.700 -07:00 [INF] HTTP GET /api/Skills/stats responded 200 in 510.4202 ms
+2026-04-28 05:58:41.388 -07:00 [INF] HTTP GET /api/Skills/3 responded 200 in 100.2129 ms
