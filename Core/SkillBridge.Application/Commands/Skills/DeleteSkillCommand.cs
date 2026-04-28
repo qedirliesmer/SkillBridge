@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using SkillBridge.Application.Abstracts.Services;
 using SkillBridge.Application.Common.Interfaces;
 using SkillBridge.Application.Common.Models;
@@ -17,12 +18,14 @@ public record DeleteSkillCommand(int Id) : IRequest<IResult<Unit>>;
 public class DeleteSkillCommandHandler : IRequestHandler<DeleteSkillCommand, IResult<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IFileStorageService _storageService; 
+    private readonly IFileStorageService _storageService;
+    private readonly IDistributedCache _cache; 
 
-    public DeleteSkillCommandHandler(IUnitOfWork unitOfWork, IFileStorageService storageService)
+    public DeleteSkillCommandHandler(IUnitOfWork unitOfWork, IFileStorageService storageService, IDistributedCache cache)
     {
         _unitOfWork = unitOfWork;
         _storageService = storageService;
+        _cache = cache;
     }
 
     public async Task<IResult<Unit>> Handle(DeleteSkillCommand request, CancellationToken cancellationToken)
@@ -43,6 +46,9 @@ public class DeleteSkillCommandHandler : IRequestHandler<DeleteSkillCommand, IRe
 
         _unitOfWork.Skills.Delete(skill);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _cache.RemoveAsync("all_skills_stats", cancellationToken);
+        await _cache.RemoveAsync($"skill_{request.Id}", cancellationToken);
 
         return Result<Unit>.Success(Unit.Value, "Skill and all associated media files deleted successfully.");
     }

@@ -14,19 +14,23 @@ using System.Threading.Tasks;
 
 namespace SkillBridge.Application.Commands.Skills;
 
+using Microsoft.Extensions.Caching.Distributed;
+
 public record CreateSkillCommand(CreateSkillDto Dto) : IRequest<IResult<int>>;
 
 public class CreateSkillCommandHandler : IRequestHandler<CreateSkillCommand, IResult<int>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly IFileStorageService _storageService; 
+    private readonly IFileStorageService _storageService;
+    private readonly IDistributedCache _cache; 
 
-    public CreateSkillCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IFileStorageService storageService)
+    public CreateSkillCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IFileStorageService storageService, IDistributedCache cache)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _storageService = storageService;
+        _cache = cache; 
     }
 
     public async Task<IResult<int>> Handle(CreateSkillCommand request, CancellationToken cancellationToken)
@@ -41,7 +45,7 @@ public class CreateSkillCommandHandler : IRequestHandler<CreateSkillCommand, IRe
 
         await _unitOfWork.Skills.AddAsync(skill, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         if (request.Dto.Images != null && request.Dto.Images.Any())
         {
             int order = 1;
@@ -59,6 +63,8 @@ public class CreateSkillCommandHandler : IRequestHandler<CreateSkillCommand, IRe
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
+
+        await _cache.RemoveAsync("all_skills_stats", cancellationToken);
 
         return Result<int>.Success(skill.Id, "Skill created successfully with media.");
     }
